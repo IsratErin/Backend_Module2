@@ -58,3 +58,67 @@ app.get("/random-person", async (req, res) => {
     });
   }
 });
+
+const userSchema = z.object({
+  name: z.string().max(12).min(3),
+  age: z.number().min(8).max(1100).optional().default(28),
+  email: z.email().toLowerCase(),
+});
+
+//users route
+app.use(express.json());
+app.post("/users", (req, res) => {
+  const user = req.body;
+
+  const validatedUser = userSchema.safeParse(user);
+
+  if (!validatedUser.success) {
+    return res.status(400).json({
+      error: "Not valid data",
+      details: validatedUser.error,
+    });
+  } else {
+    res.status(201).json({ user: validatedUser.data });
+  }
+});
+
+//random-login route
+const randomLoggedUser = z.object({
+  results: z.array(
+    z.object({
+      name: z.object({
+        first: z.string(),
+        last: z.string(),
+      }),
+      registered: z.object({
+        date: z.coerce.date().transform((d) => d.toISOString().split("T")[0]),
+      }),
+    })
+  ),
+});
+
+app.get("/random-login", async (req, res) => {
+  try {
+    const response = await fetch("https://randomuser.me/api/");
+    const data = await response.json();
+
+    const validatedUser = randomLoggedUser.safeParse(data);
+    if (!validatedUser.success) {
+      return res.status(500).json({
+        error: "Invalid user data",
+        details: validatedUser.error,
+      });
+    } else {
+      const user = validatedUser.data.results[0];
+      res.json({
+        name: `${user?.name.first} ${user?.name.last}`,
+        date: `${user?.registered.date}`,
+        summary: `${user.name.first} ${user?.name.last} registered on ${user?.registered.date}`,
+      });
+    }
+  } catch (error) {
+    res.status(500).json({
+      error: "Failed fetching user data" + error,
+    });
+  }
+});

@@ -1,0 +1,15 @@
+{
+  "compilerOptions": {
+    "target": "ES2020", // Modern JS output
+    "module": "NodeNext", // Enables ESM support
+    "moduleResolution": "NodeNext", // Proper module resolution for ESM
+    "strict": true, // Enable all strict type-checking options
+    "esModuleInterop": true, // Enable import compatibility with CommonJS
+    "forceConsistentCasingInFileNames": true,
+    "skipLibCheck": true, // Skip type checks for node_modules
+    "outDir": "dist", // Output folder for compiled JS
+    "rootDir": "." // Root folder for TS files
+  },
+  "include": ["server.ts", "**/*.ts"], // Files to include
+  "exclude": ["node_modules"] // Exclude node_modules
+}

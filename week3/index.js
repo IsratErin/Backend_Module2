@@ -19,3 +19,17 @@ const pool = new Pool({
   password: process.env.DB_PASSWORD,
   port: process.env.DB_PORT,
 });
+
+//lists all players, the games they’ve played, and their scores
+app.get("/players-scores", async (req, res) => {
+  try {
+    const result =
+      await pool.query(`SELECT players.name, games.title, scores.score
+        FROM scores
+        INNER JOIN players ON scores.player_id =players.id
+        INNER JOIN games ON scores.game_id = games.id`);
+    res.status(200).json(result.rows);
+  } catch (error) {
+    res.status(500).send(error.message);
+  }
+});
